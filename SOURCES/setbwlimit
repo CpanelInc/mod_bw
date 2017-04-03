@@ -1,0 +1,87 @@
+#!/bin/sh
+eval 'if [ -x /usr/local/cpanel/3rdparty/bin/perl ]; then exec /usr/local/cpanel/3rdparty/bin/perl -x -- $0 ${1+"$@"}; else exec /usr/bin/perl -x $0 ${1+"$@"}; fi;'
+  if 0;
+
+#!/usr/bin/perl
+# cpanel - scripts/setbwlimit                     Copyright(c) 2016 cPanel, Inc.
+#                                                           All rights Reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+#
+# This is provided by the mod_bandwidth option in EasyApache
+
+use lib '/usr/local/cpanel';
+use Cpanel::AcctUtils     ();
+use Cpanel::EditHttpdconf ();
+use Getopt::Param         ();
+
+my $help_cr = sub {
+    print <<"END_HELP";
+Add a bandwidth limit to a vhost.
+
+$0 --help  (this screen)
+$0 --domain=domain-you-want-to-limit.com --limit=1024000
+
+'limit' is bytes/sec you want to setup (hint 1024 = 1kb)
+END_HELP
+    exit;
+};
+
+my $prm = Getopt::Param->new(
+    {
+        'help_coderef' => $help_cr,
+    }
+);
+
+my @list = $prm->list_params();
+$help_cr->() if @list == 0;
+
+die 'Please specify a domain' if !$prm->get_param('domain');
+die 'limit must be numeric'   if $prm->get_param('limit') !~ m{ \A \d+ \z }xms;
+
+my $user = Cpanel::AcctUtils::getdomainowner( $prm->get_param('domain') );
+if ( !$user || $user eq 'root' ) {
+    die "Invalid domain specified. Unable to determine owner.\n";
+}
+
+print 'Setting up ' . $prm->get_param('domain') . ' for user ' . $user . ' with limit of ' . $prm->get_param('limit') . "...\n";
+my $limit = $prm->get_param('limit');
+
+my $content = <<"END_CONTENT";
+<IfModule mod_bw.c>
+  BandWidthModule On
+  ForceBandWidthModule On
+  BandWidth all $limit
+</IfModule>
+<IfModule mod_bandwidth.c>
+  BandWidthModule On
+  BandWidth all $limit
+</IfModule>
+END_CONTENT
+
+my $rc = Cpanel::EditHttpdconf::add_vhost_include(
+    {
+        'user'                => $user,
+        'domain'              => $prm->get_param('domain'),
+        'file'                => 'cp_bw_all_limit.conf',
+        'userdata_true_value' => $limit,
+        'restart_apache'      => 1,                           # Optional, default is '0' can be left out
+        'content'             => {
+            'std' => {
+                '1' => $content,
+                '2' => $content,
+            },
+            'ssl' => {
+                '1' => $content,
+                '2' => $content,
+            },
+        },
+    }
+);
+
+if ($rc) {
+    print "\nDone!\n";
+}
+else {
+    print "\nFailed!\n";
+}
