@@ -6,7 +6,7 @@ Version: 0.92
 Summary: Set a limit to the maximum speed available to certains users to download.
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4556 for more details
-%define release_prefix 1
+%define release_prefix 2
 License: Apache License, Version 2.0
 Release: %{release_prefix}%{?dist}.cpanel
 Group: System Environment/Daemons
@@ -38,9 +38,9 @@ mkdir -p %{buildroot}%{_httpd_moddir}
 
 install %{upstream_name}.so %{buildroot}%{_httpd_moddir}/
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/apache2/conf.modules.d/
-mkdir -p $RPM_BUILD_ROOT/scripts
+mkdir -p $RPM_BUILD_ROOT/usr/local/cpanel/scripts
 install -p $RPM_SOURCE_DIR/491_mod_bw.conf $RPM_BUILD_ROOT%{_sysconfdir}/apache2/conf.modules.d/491_mod_bw.conf
-install -p $RPM_SOURCE_DIR/setbwlimit $RPM_BUILD_ROOT/scripts/setbwlimit
+install -p $RPM_SOURCE_DIR/setbwlimit $RPM_BUILD_ROOT/usr/local/cpanel/scripts/setbwlimit
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -48,8 +48,11 @@ install -p $RPM_SOURCE_DIR/setbwlimit $RPM_BUILD_ROOT/scripts/setbwlimit
 %files
 %{_libdir}/apache2/modules/mod_bw.so
 %config(noreplace) %{_sysconfdir}/apache2/conf.modules.d/491_mod_bw.conf
-/scripts/setbwlimit
+/usr/local/cpanel/scripts/setbwlimit
 
 %changelog
+* Mon Jun 19 2017 Jacob Perkins <jacob.perkins@cpanel.net> - 0.92-2
+- Adjusted installation to ULC/scripts
+
 * Mon Apr 03 2017 Dan Muey <dan@cpanel.net> - 0.92-1
 - EA-6015: Initial mod_bw for ea4
