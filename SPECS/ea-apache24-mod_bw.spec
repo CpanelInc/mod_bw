@@ -6,7 +6,7 @@ Version: 0.92
 Summary: Set a limit to the maximum speed available to certains users to download.
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4556 for more details
-%define release_prefix 2
+%define release_prefix 3
 License: Apache License, Version 2.0
 Release: %{release_prefix}%{?dist}.cpanel
 Group: System Environment/Daemons
@@ -51,6 +51,9 @@ install -p $RPM_SOURCE_DIR/setbwlimit $RPM_BUILD_ROOT/usr/local/cpanel/scripts/s
 /usr/local/cpanel/scripts/setbwlimit
 
 %changelog
+* Fri May 22 2020 Julian Brown <julian.brown@cpanel.net> - 0.92-3
+- ZC-6851: Fix for C8
+
 * Mon Jun 19 2017 Jacob Perkins <jacob.perkins@cpanel.net> - 0.92-2
 - Adjusted installation to ULC/scripts
 
