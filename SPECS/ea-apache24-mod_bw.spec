@@ -1,6 +1,10 @@
 %global ns_name ea-apache24
 %global upstream_name mod_bw
 
+%if 0%{?rhel} >= 8
+%global debug_package %{nil}
+%endif
+
 Name: %{ns_name}-%{upstream_name}
 Version: 0.92
 Summary: Set a limit to the maximum speed available to certains users to download.
