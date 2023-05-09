@@ -1,16 +1,12 @@
 %global ns_name ea-apache24
 %global upstream_name mod_bw
 
-%if 0%{?rhel} >= 8
-%global debug_package %{nil}
-%endif
-
 Name: %{ns_name}-%{upstream_name}
 Version: 0.92
 Summary: Set a limit to the maximum speed available to certains users to download.
 
 # Doing release_prefix this way for Release allows for OBS-proof versioning, See EA-4556 for more details
-%define release_prefix 4
+%define release_prefix 5
 License: Apache License, Version 2.0
 Release: %{release_prefix}%{?dist}.cpanel
 Group: System Environment/Daemons
@@ -55,6 +51,9 @@ install -p $RPM_SOURCE_DIR/setbwlimit $RPM_BUILD_ROOT/usr/local/cpanel/scripts/s
 /usr/local/cpanel/scripts/setbwlimit
 
 %changelog
+* Tue May 09 2023 Brian Mendoza <brian.mendoza@cpanel.net> - 0.92-5
+- ZC-10936: Clean up Makefile and remove debug-package-nil
+
 * Mon Jun 28 2021 Julian Brown <julian.brown@cpanel.net> - 0.92-4
 - ZC-8700: Rename the tarball
 
